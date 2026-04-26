@@ -3,7 +3,7 @@
     <xacro:property name="mesh_dir" value="package://puma560_description/meshes"/>
     
     <xacro:macro name="puma560_link_geometry" params="link_num">
-        <mesh filename="${mesh_dir}/puma_link${link_num}.stl" scale="${0.001*25.4} ${0.001*25.4} ${25.4*0.001}"/>
+        <mesh filename="${mesh_dir}/puma_link${link_num}.stl" scale="${0.1*25.4} ${0.1*25.4} ${0.1*25.4}"/>
     </xacro:macro>
     
     <material name="blue">
@@ -33,13 +33,6 @@
     <xacro:property name="a_4" value="0"/>
     <xacro:property name="a_5" value="0"/>
     <xacro:property name="a_6" value="0"/>
-
-    <link name="world"/>
-    <joint name="world_to_link1" type="fixed">
-        <parent link="world"/>
-        <child link="link1"/>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-    </joint>
 
     <xacro:macro name="link" params="num color vxyz vrpy cxyz crpy ixyz irpy mass ixx ixy ixz iyy iyz izz">
       <link name="link${num}">
@@ -74,6 +67,8 @@
             <dynamics damping="${damping}" friction="${friction}"/>
         </joint>
     </xacro:macro>
+
+    <link name="world"/>
 
     <xacro:link num="1" color="green" 
                 vxyz="0 0 0" vrpy="0 0 ${M_PI/2}"
@@ -128,7 +123,7 @@
                  xyz="0 0 0" rpy="0 0 0"
                  axyz="0 0 0"
                  effort="0" lower="0" upper="0" velocity="0"
-                 damping="0" friction="0"/> 
+                 damping="0" friction="0"/>
 
     <xacro:joint name="j1" type="revolute" parent="link1" child="link2" 
                  xyz="0 0 ${d_1}" rpy="${M_PI/2} 0 0"
