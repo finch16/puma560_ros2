@@ -166,9 +166,10 @@
     <joint name="base" type="fixed">
         <parent link="world"/>
         <child link="link1"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
-    <joint name="join1" type="revolute">
+    <joint name="joint1" type="revolute">
         <parent link="link1"/>
         <child link="link2"/>
         <origin xyz="0 0 0.6718" rpy="1.570796325 0 0"/>
@@ -177,7 +178,7 @@
         <dynamics damping="1.0" friction="0.1"/>
     </joint>
 
-    <joint name="join2" type="revolute">
+    <joint name="joint2" type="revolute">
         <parent link="link2"/>
         <child link="link3"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -186,7 +187,7 @@
         <dynamics damping="1.0" friction="0.1"/>
     </joint>
 
-    <joint name="join3" type="revolute">
+    <joint name="joint3" type="revolute">
         <parent link="link3"/>
         <child link="link4"/>
         <origin xyz="0.4318 -0.0203 0.1501" rpy="0 0 -1.570796325"/>
@@ -195,7 +196,7 @@
         <dynamics damping="1.0" friction="0.1"/>
     </joint>
 
-    <joint name="join4" type="revolute">
+    <joint name="joint4" type="revolute">
         <parent link="link4"/>
         <child link="link5"/>
         <origin xyz="0 0 0" rpy="1.570796325 0 1.570796325"/>
@@ -204,7 +205,7 @@
         <dynamics damping="1.0" friction="0.1"/>
     </joint>
 
-    <joint name="join5" type="revolute">
+    <joint name="joint5" type="revolute">
         <parent link="link5"/>
         <child link="link6"/>
         <origin xyz="0 0 0.4331" rpy="1.570796325 0 0"/>
@@ -213,7 +214,7 @@
         <dynamics damping="1.0" friction="0.1"/>
     </joint>
 
-    <joint name="join6" type="revolute">
+    <joint name="joint6" type="revolute">
         <parent link="link6"/>
         <child link="link7"/>
         <origin xyz="0 0.0558 0" rpy="-1.570796325 0 0"/>
@@ -222,4 +223,51 @@
         <dynamics damping="1.0" friction="0.1"/>
     </joint>
 
+    <ros2_control name="GazeboSimSystem" type="system">
+        <hardware>
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </hardware>
+        
+        <joint name="joint1">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="joint2">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="joint3">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="joint4">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="joint5">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="joint6">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+    </ros2_control>
+
+    <gazebo>
+        <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+            <parameters>$(find puma560_description)/config/controllers.yaml</parameters>
+        </plugin>
+    </gazebo>
 </robot>
