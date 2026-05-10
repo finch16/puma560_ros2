@@ -28,6 +28,18 @@ Visualization Manager:
       Reference Frame: world
       Color: 160; 160; 164
   
+    - Class: rviz_default_plugins/Image
+      Name: Overhead Camera
+      Enabled: true
+      Topic: /overhead_camera/image_raw
+      Transport Hint: raw
+      Queue Size: 10
+      Min Value: 0
+      Max Value: 255
+      Normalize Range: false
+      Unreliable: false
+      Image Rendering: 0
+
   Global Options:
     Fixed Frame: world
     Background Color: 48; 48; 48

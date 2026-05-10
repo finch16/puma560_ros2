@@ -5,6 +5,9 @@
     <let name="robot_description"
          value="$(command 'xacro $(find-pkg-share puma560_description)/urdf/puma560_robot.urdf.xacro')"/>
 
+    <let name="camera_description"
+         value="$(find-pkg-share puma560_description)/world/overhead_camera.sdf"/>
+
     <node pkg="robot_state_publisher" exec="robot_state_publisher" name="robot_state_publisher">
         <param name="robot_description" value="$(var robot_description)"/>
         <param name="use_sim_time" value="$(var use_sim_time)"/>
@@ -18,20 +21,26 @@
     
     <node pkg="ros_gz_sim" exec="create" name="spawn_robot" output="screen" 
           args="-topic robot_description -name puma560"/>
-    
+
+    <node pkg="ros_gz_sim" exec="create" name="spawn_camera" output="screen" 
+          args="-file $(var camera_description) -name overhead_camera -x 0 -y 0 -z 2 -R 0 -P 1.57 -Y 0"/>
+
+    <node pkg="ros_gz_bridge" exec="parameter_bridge" name="camera_bridge" 
+          args="/overhead_camera/image_raw@sensor_msgs/msg/Image@gz.msgs.Image"/>
+
     <node pkg="ros_gz_bridge" exec="parameter_bridge" name="clock_bridge" 
           args="/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"/>
 
     <node pkg="controller_manager" exec="spawner" name="joint_state_broadcaster_spawner"
-          args="joint_state_broadcaster"/>
+          args="-c controller_manager joint_state_broadcaster"/>
 
     <node pkg="controller_manager" exec="spawner" name="joint_trajectory_controller_spawner"
-          args="joint_trajectory_controller"/>
+          args="-c controller_manager joint_trajectory_controller"/>
 
     <node pkg="rqt_joint_trajectory_controller" exec="rqt_joint_trajectory_controller" name="joint_controller_gui">
         <param name="use_sim_time" value="$(var use_sim_time)"/>
     </node>
-    
+
     <node pkg="rviz2" exec="rviz2" name="rviz2" 
           args="-d $(find-pkg-share puma560_description)/config/rviz.yaml"/>
 </launch>

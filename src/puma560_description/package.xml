@@ -26,6 +26,13 @@
     <depend>ros_gz_bridge</depend>
     <depend>rqt_joint_trajectory_controller</depend>
 
+    <depend>sensor_msgs</depend>
+    <depend>rviz_default_plugins</depend>
+    <depend>rqt_image_view</depend>
+    <depend>image_view</depend>
+    <depend>cv_bridge</depend>
+    <depend>image_transport</depend>
+
     <export>
         <build_type>ament_cmake</build_type>
     </export>
