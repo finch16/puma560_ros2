@@ -1,36 +1,64 @@
 #include "puma560_description/robot_hardware_interface.hpp"
 
+#include <algorithm>
+
 namespace puma560_description
 {
 
 hardware_interface::CallbackReturn RobotHardwareInterface::on_init(
     const hardware_interface::HardwareComponentInterfaceParams& params)
 {
-    if(hardware_interface::SystemInterface::on_init(params) != CallbackReturn::SUCCESS)
+    if (hardware_interface::SystemInterface::on_init(params) != CallbackReturn::SUCCESS)
     {
-        RCLCPP_ERROR(get_node()->get_logger(), "Not init RobotHardwareInterface");
         return CallbackReturn::ERROR;
     }
 
-    const auto& joint_info = get_hardware_info().joints;
-
-    if(joint_info.size() < num_joints)
+    for (const auto& joint : info_.joints)
     {
-        RCLCPP_ERROR(get_node()->get_logger(), "There are fewer (6) joints in the configuration than necessary.");
-        return CallbackReturn::ERROR;
+        if (joint.command_interfaces.size() != 1 ||
+            joint.command_interfaces[0].name != hardware_interface::HW_IF_POSITION)
+        {
+            RCLCPP_FATAL(get_logger(),
+                "Joint '%s': expected 1 position command interface, got %zu",
+                joint.name.c_str(), joint.command_interfaces.size());
+            return CallbackReturn::ERROR;
+        }
+        if (joint.state_interfaces.size() != 2)
+        {
+            RCLCPP_FATAL(get_logger(),
+                "Joint '%s': expected 2 state interfaces (position + velocity), got %zu",
+                joint.name.c_str(), joint.state_interfaces.size());
+            return CallbackReturn::ERROR;
+        }
     }
 
-    for(size_t i = 0; i < num_joints; ++i)
+    return CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn RobotHardwareInterface::on_configure(
+    const rclcpp_lifecycle::State& /*previous_state*/)
+{
+    for (const auto& [name, descr] : joint_state_interfaces_)
     {
-        joint_names[i] = joint_info[i].name;
+        set_state(name, 0.0);
     }
-    
+    for (const auto& [name, descr] : joint_command_interfaces_)
+    {
+        set_command(name, 0.0);
+    }
+    RCLCPP_INFO(get_logger(), "Configured successfully");
     return CallbackReturn::SUCCESS;
 }
 
 hardware_interface::CallbackReturn RobotHardwareInterface::on_activate(
     const rclcpp_lifecycle::State& /*previous_state*/)
 {
+    // Sync commands with current states so robot doesn't jump on activation
+    for (const auto& [name, descr] : joint_command_interfaces_)
+    {
+        set_command(name, get_state(name));
+    }
+    RCLCPP_INFO(get_logger(), "Activated successfully");
     return CallbackReturn::SUCCESS;
 }
 
@@ -39,48 +67,36 @@ hardware_interface::return_type RobotHardwareInterface::read(
     const rclcpp::Duration& period)
 {
     double dt = period.seconds();
-    if(dt <= 0.0) dt = 0.01;
-    for(size_t i = 0; i < num_joints; ++i)
+    if (dt <= 0.0) dt = 0.01;
+
+    for (const auto& joint : info_.joints)
     {
-        double error = command_positions[i] - state_positions[i];
+        const std::string pos_state = joint.name + "/" + hardware_interface::HW_IF_POSITION;
+        const std::string vel_state = joint.name + "/" + hardware_interface::HW_IF_VELOCITY;
+        const std::string pos_cmd   = joint.name + "/" + hardware_interface::HW_IF_POSITION;
+
+        double current_pos = get_state(pos_state);
+        double cmd_pos     = get_command(pos_cmd);
+
+        double error = cmd_pos - current_pos;
         double delta = std::clamp(error, -dt, dt);
-        state_positions[i] += delta;
-        state_velocity[i] = delta / dt;
+
+        set_state(pos_state, current_pos + delta);
+        set_state(vel_state, delta / dt);
     }
-    return hardware_interface::return_type::OK;;
+
+    return hardware_interface::return_type::OK;
 }
 
 hardware_interface::return_type RobotHardwareInterface::write(
     const rclcpp::Time& /*time*/,
     const rclcpp::Duration& /*period*/)
 {
+    // TODO: send commands to real hardware (TCP/serial/etc.)
     return hardware_interface::return_type::OK;
 }
 
-std::vector<hardware_interface::StateInterface> RobotHardwareInterface::export_state_interfaces()
-{
-    std::vector<hardware_interface::StateInterface> state_interfaces;
-    for (size_t i = 0; i < num_joints; ++i)
-    {
-        state_interfaces.emplace_back(joint_names[i], hardware_interface::HW_IF_POSITION, &state_positions[i]);
-        state_interfaces.emplace_back(joint_names[i], hardware_interface::HW_IF_VELOCITY, &state_velocity[i]);
-    }
-    return state_interfaces;
-}
-
-std::vector<hardware_interface::CommandInterface> RobotHardwareInterface::export_command_interfaces()
-{
-    
-    std::vector<hardware_interface::CommandInterface> command_interfaces;
-    for (size_t i = 0; i < num_joints; ++i)
-    {
-        command_interfaces.emplace_back(joint_names[i], hardware_interface::HW_IF_POSITION, &command_positions[i]);
-    }
-    return command_interfaces;
-
-}
-
-} // namespace
+} // namespace puma560_description
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(puma560_description::RobotHardwareInterface, hardware_interface::SystemInterface)

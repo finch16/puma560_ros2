@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <let name="use_sim_time" value="true"/>
+    <let name="use_sim_time" value="false"/>
 
     <let name="robot_description"
          value="$(command 'xacro $(find-pkg-share puma560_description)/urdf/puma560_robot.urdf.xacro')"/>
