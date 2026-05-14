@@ -1,6 +1,7 @@
 #include "puma560_description/robot_hardware_interface.hpp"
 
 #include <algorithm>
+#include <sstream>
 
 namespace puma560_description
 {
@@ -69,6 +70,10 @@ hardware_interface::return_type RobotHardwareInterface::read(
     double dt = period.seconds();
     if (dt <= 0.0) dt = 0.01;
 
+    std::ostringstream ss;
+    ss << std::fixed;
+    ss.precision(3);
+
     for (const auto& joint : info_.joints)
     {
         const std::string pos_state = joint.name + "/" + hardware_interface::HW_IF_POSITION;
@@ -83,7 +88,14 @@ hardware_interface::return_type RobotHardwareInterface::read(
 
         set_state(pos_state, current_pos + delta);
         set_state(vel_state, delta / dt);
+
+        ss << "\n  " << joint.name
+           << "  state=" << (current_pos + delta)
+           << "  cmd=" << cmd_pos
+           << "  err=" << error;
     }
+
+    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "[read]%s", ss.str().c_str());
 
     return hardware_interface::return_type::OK;
 }
