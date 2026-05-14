@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+    <let name="use_sim_time" value="true"/>
+
+    <let name="robot_description"
+         value="$(command 'xacro $(find-pkg-share puma560_description)/urdf/puma560_robot.urdf.xacro')"/>
+
+    <node pkg="robot_state_publisher" exec="robot_state_publisher" name="robot_state_publisher">
+        <param name="robot_description" value="$(var robot_description)"/>
+        <param name="use_sim_time" value="$(var use_sim_time)"/>
+    </node>
+
+    <node pkg="controller_manager" exec="ros2_control_node" name="controller_manager" output="screen">
+        <param name="robot_description" value="$(var robot_description)"/>
+        <param name="use_sim_time" value="$(var use_sim_time)"/>
+        <param from="$(find-pkg-share puma560_description)/config/controllers.yaml"/>
+    </node>
+
+    <node pkg="controller_manager" exec="spawner" name="joint_state_broadcaster_spawner"
+          args="-c controller_manager joint_state_broadcaster"/>
+
+    <node pkg="controller_manager" exec="spawner" name="joint_trajectory_controller_spawner"
+          args="-c controller_manager joint_trajectory_controller"/>
+
+    <!--<node pkg="rqt_joint_trajectory_controller" exec="rqt_joint_trajectory_controller" name="joint_controller_gui">
+        <param name="use_sim_time" value="$(var use_sim_time)"/>
+    </node>-->
+
+    <node pkg="rviz2" exec="rviz2" name="rviz2" 
+          args="-d $(find-pkg-share puma560_description)/config/rviz.yaml"/>
+</launch>

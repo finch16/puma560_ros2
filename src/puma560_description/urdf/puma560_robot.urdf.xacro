@@ -223,9 +223,10 @@
         <dynamics damping="1.0" friction="0.1"/>
     </joint>
 
-    <ros2_control name="GazeboSimSystem" type="system">
+    <ros2_control name="robot_hardware_interface" type="system">
         <hardware>
-            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+            <!--<plugin>gz_ros2_control/GazeboSimSystem</plugin>-->
+            <plugin>puma560_description/RobotHardwareInterface</plugin>
         </hardware>
         
         <joint name="joint1">
@@ -265,9 +266,9 @@
         </joint>
     </ros2_control>
 
-    <gazebo>
+    <!--<gazebo>
         <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
             <parameters>$(find puma560_description)/config/controllers.yaml</parameters>
         </plugin>
-    </gazebo>
+    </gazebo>-->
 </robot>

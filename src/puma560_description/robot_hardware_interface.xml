@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<library path="robot_hardware_interface">
+    <class name="puma560_description/RobotHardwareInterface"
+           type="puma560_description::RobotHardwareInterface"
+           base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Custom hardware interface for 6-DOF robot manipulator
+      Provides position control for 6 joints
+    </description>
+  </class>
+</library>
