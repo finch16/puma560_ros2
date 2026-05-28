@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.8)
 project(puma560_description)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 find_package(ament_cmake REQUIRED)
 
 find_package(ros_gz REQUIRED)
@@ -25,6 +29,10 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+include_directories(frame_codec)
+add_subdirectory(frame_codec)
+set(MYLIBS ${MYLIBS} frame_codec)
+
 add_library(robot_hardware_interface SHARED
   src/robot_hardware_interface.cpp
 )
@@ -38,6 +46,7 @@ target_link_libraries(robot_hardware_interface
   ${pluginlib_LIBRARIES}
   hardware_interface::hardware_interface
   rclcpp::rclcpp
+  ${MYLIBS}
 )
 
 pluginlib_export_plugin_description_file(hardware_interface robot_hardware_interface.xml)

@@ -1,7 +1,8 @@
 #include "puma560_description/robot_hardware_interface.hpp"
-
+#include "tcp_client/client.hpp"
 #include <algorithm>
 #include <sstream>
+#include <array>
 
 namespace puma560_description
 {
@@ -24,6 +25,7 @@ hardware_interface::CallbackReturn RobotHardwareInterface::on_init(
                 joint.name.c_str(), joint.command_interfaces.size());
             return CallbackReturn::ERROR;
         }
+
         if (joint.state_interfaces.size() != 2)
         {
             RCLCPP_FATAL(get_logger(),
@@ -31,6 +33,12 @@ hardware_interface::CallbackReturn RobotHardwareInterface::on_init(
                 joint.name.c_str(), joint.state_interfaces.size());
             return CallbackReturn::ERROR;
         }
+        
+        //auto min = joint.limits->lower;
+        //auto max = joint.limits->upper;
+        //auto k1 = 99.99f / (max - nim);
+        //auto k2 = (max - nim) / 99.99f;
+        //convert[joint.name] = {{k1, -min * k1}, {k2, min}};
     }
 
     return CallbackReturn::SUCCESS;
@@ -59,7 +67,19 @@ hardware_interface::CallbackReturn RobotHardwareInterface::on_activate(
     {
         set_command(name, get_state(name));
     }
+    
+    client.start("192.168.1.10", "1000");
+    
     RCLCPP_INFO(get_logger(), "Activated successfully");
+    return CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn RobotHardwareInterface::on_shutdown(
+    const rclcpp_lifecycle::State& /*previous_state*/)
+{
+    client.stop();
+    
+    RCLCPP_INFO(get_logger(), "Shutdowned successfully");
     return CallbackReturn::SUCCESS;
 }
 
@@ -70,32 +90,19 @@ hardware_interface::return_type RobotHardwareInterface::read(
     double dt = period.seconds();
     if (dt <= 0.0) dt = 0.01;
 
-    std::ostringstream ss;
-    ss << std::fixed;
-    ss.precision(3);
+    auto data = client.get();
 
-    for (const auto& joint : info_.joints)
+    for(int it = 0; it < 6; it++)
     {
-        const std::string pos_state = joint.name + "/" + hardware_interface::HW_IF_POSITION;
-        const std::string vel_state = joint.name + "/" + hardware_interface::HW_IF_VELOCITY;
-        const std::string pos_cmd   = joint.name + "/" + hardware_interface::HW_IF_POSITION;
+        const std::string pos_state = std::format("joint{}/{}", it + 1, hardware_interface::HW_IF_POSITION);
+        const std::string vel_state = std::format("joint{}/{}", it + 1, hardware_interface::HW_IF_VELOCITY);
 
         double current_pos = get_state(pos_state);
-        double cmd_pos     = get_command(pos_cmd);
-
-        double error = cmd_pos - current_pos;
-        double delta = std::clamp(error, -dt, dt);
-
-        set_state(pos_state, current_pos + delta);
-        set_state(vel_state, delta / dt);
-
-        ss << "\n  " << joint.name
-           << "  state=" << (current_pos + delta)
-           << "  cmd=" << cmd_pos
-           << "  err=" << error;
+        double pos = data[it] * (convert[it].second - convert[it].first) / 99.99 + convert[it].first;
+        
+        set_state(pos_state, pos);
+        set_state(vel_state, (pos - current_pos) / dt);
     }
-
-    RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 500, "[read]%s", ss.str().c_str());
 
     return hardware_interface::return_type::OK;
 }
@@ -104,7 +111,17 @@ hardware_interface::return_type RobotHardwareInterface::write(
     const rclcpp::Time& /*time*/,
     const rclcpp::Duration& /*period*/)
 {
-    // TODO: send commands to real hardware (TCP/serial/etc.)
+    std::array<float, 6> data = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    
+    for(int it = 0; it < 6; it++)
+    {
+        const std::string pos_cmd = std::format("joint{}/{}", it + 1, hardware_interface::HW_IF_POSITION);
+
+        double cmd = get_command(pos_cmd);
+        data[it] = (cmd - convert[it].first) * 99.99 / (convert[it].second - convert[it].first);
+    }
+
+    client.send(data);
     return hardware_interface::return_type::OK;
 }
 
