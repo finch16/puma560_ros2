@@ -33,12 +33,6 @@ hardware_interface::CallbackReturn RobotHardwareInterface::on_init(
                 joint.name.c_str(), joint.state_interfaces.size());
             return CallbackReturn::ERROR;
         }
-        
-        //auto min = joint.limits->lower;
-        //auto max = joint.limits->upper;
-        //auto k1 = 99.99f / (max - nim);
-        //auto k2 = (max - nim) / 99.99f;
-        //convert[joint.name] = {{k1, -min * k1}, {k2, min}};
     }
 
     return CallbackReturn::SUCCESS;
@@ -62,7 +56,6 @@ hardware_interface::CallbackReturn RobotHardwareInterface::on_configure(
 hardware_interface::CallbackReturn RobotHardwareInterface::on_activate(
     const rclcpp_lifecycle::State& /*previous_state*/)
 {
-    // Sync commands with current states so robot doesn't jump on activation
     for (const auto& [name, descr] : joint_command_interfaces_)
     {
         set_command(name, get_state(name));
@@ -117,8 +110,8 @@ hardware_interface::return_type RobotHardwareInterface::write(
     {
         const std::string pos_cmd = std::format("joint{}/{}", it + 1, hardware_interface::HW_IF_POSITION);
 
-        double cmd = get_command(pos_cmd);
-        data[it] = (cmd - convert[it].first) * 99.99 / (convert[it].second - convert[it].first);
+        data[it] = get_command(pos_cmd);
+        data[it] = (get_command(pos_cmd) - convert[it].first) * 99.99 / (convert[it].second - convert[it].first);
     }
 
     client.send(data);
