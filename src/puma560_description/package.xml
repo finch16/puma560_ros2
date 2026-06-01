@@ -26,6 +26,9 @@
     <depend>ros_gz_bridge</depend>
     <depend>rqt_joint_trajectory_controller</depend>
 
+    <depend>pluginlib</depend>
+    <depend>hardware_interface</depend>
+
     <depend>sensor_msgs</depend>
     <depend>rviz_default_plugins</depend>
     <depend>rqt_image_view</depend>
