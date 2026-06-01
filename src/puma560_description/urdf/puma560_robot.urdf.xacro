@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <robot name="Puma560" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:arg name="use_sim_time" default="true"/>
+
     <xacro:macro name="robot_mesh" params="name">
         <mesh filename="package://puma560_description/meshes/${name}" scale="${0.001*25.4} ${0.001*25.4} ${0.001*25.4}"/>
     </xacro:macro>
@@ -223,42 +225,41 @@
         <dynamics damping="1.0" friction="0.1"/>
     </joint>
 
-    <ros2_control name="robot_hardware_interface" type="system">
+    <ros2_control name="simulation_system" type="system">
         <hardware>
-            <!--<plugin>gz_ros2_control/GazeboSimSystem</plugin>-->
-            <plugin>puma560_description/RobotHardwareInterface</plugin>
+            <xacro:if value="$(arg use_sim_time)">
+                <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+            </xacro:if>
+            <xacro:unless value="$(arg use_sim_time)">
+                <plugin>puma560_description/RobotHardwareInterface</plugin>
+            </xacro:unless>
         </hardware>
-        
+
         <joint name="joint1">
             <command_interface name="position"/>
             <state_interface name="position"/>
             <state_interface name="velocity"/>
         </joint>
-
         <joint name="joint2">
             <command_interface name="position"/>
             <state_interface name="position"/>
             <state_interface name="velocity"/>
         </joint>
-
         <joint name="joint3">
             <command_interface name="position"/>
             <state_interface name="position"/>
             <state_interface name="velocity"/>
         </joint>
-
         <joint name="joint4">
             <command_interface name="position"/>
             <state_interface name="position"/>
             <state_interface name="velocity"/>
         </joint>
-
         <joint name="joint5">
             <command_interface name="position"/>
             <state_interface name="position"/>
             <state_interface name="velocity"/>
         </joint>
-
         <joint name="joint6">
             <command_interface name="position"/>
             <state_interface name="position"/>
@@ -266,9 +267,11 @@
         </joint>
     </ros2_control>
 
-    <!--<gazebo>
-        <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-            <parameters>$(find puma560_description)/config/controllers.yaml</parameters>
-        </plugin>
-    </gazebo>-->
+    <xacro:if value="$(arg use_sim_time)">
+        <gazebo>
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <parameters>$(find puma560_description)/config/controllers.yaml</parameters>
+            </plugin>
+        </gazebo>
+    </xacro:if>
 </robot>

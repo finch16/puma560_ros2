@@ -3,7 +3,7 @@
     <let name="use_sim_time" value="false"/>
 
     <let name="robot_description"
-         value="$(command 'xacro $(find-pkg-share puma560_description)/urdf/puma560_robot.urdf.xacro')"/>
+         value="$(command 'xacro $(find-pkg-share puma560_description)/urdf/puma560_robot.urdf.xacro use_sim_time:=$(var use_sim_time)')"/>
 
     <node pkg="robot_state_publisher" exec="robot_state_publisher" name="robot_state_publisher">
         <param name="robot_description" value="$(var robot_description)"/>
