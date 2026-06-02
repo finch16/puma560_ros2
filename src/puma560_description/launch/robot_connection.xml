@@ -22,9 +22,9 @@
     <node pkg="controller_manager" exec="spawner" name="joint_trajectory_controller_spawner"
           args="-c controller_manager joint_trajectory_controller"/>
 
-    <!--<node pkg="rqt_joint_trajectory_controller" exec="rqt_joint_trajectory_controller" name="joint_controller_gui">
+    <node pkg="rqt_joint_trajectory_controller" exec="rqt_joint_trajectory_controller" name="joint_controller_gui">
         <param name="use_sim_time" value="$(var use_sim_time)"/>
-    </node>-->
+    </node>
 
     <node pkg="rviz2" exec="rviz2" name="rviz2" 
           args="-d $(find-pkg-share puma560_description)/config/rviz.yaml"/>
