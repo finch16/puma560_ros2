@@ -5,25 +5,11 @@
 #include "rclcpp/rclcpp.hpp"
 #include "tcp_client/client.hpp"
 
-//#include <tuple>
-//#include <string>
-//#include <unordered_map>
-
 namespace puma560_description
 {
 
 class RobotHardwareInterface : public hardware_interface::SystemInterface
 {
-    /*std::unordered_map<std::string, std::pair<float, float>> convert =
-    {
-        {"joint1", {-a, a}},
-        {"joint2", {-b, c}},
-        {"joint3", {-b, c}},
-        {"joint4", {-d, e}},
-        {"joint5", {-f, f}},
-        {"joint6", {-a, a}}
-    };*/
-
     std::array<std::pair<float, float>, 6> convert =
     {
         std::pair{-3.14159265f, 3.14159265f},
