@@ -5,7 +5,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "tcp_client/client.hpp"
 
-namespace puma560_description
+namespace puma560_hardware
 {
 
 class RobotHardwareInterface : public hardware_interface::SystemInterface

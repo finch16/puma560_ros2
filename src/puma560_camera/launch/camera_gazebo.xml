@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+    <let name="use_sim_time" value="true"/>
+
+    <let name="camera_description"
+         value="$(find-pkg-share puma560_camera)/world/overhead_camera.sdf"/>
+
+    <node pkg="ros_gz_sim" exec="create" name="spawn_camera" output="screen"
+          args="-file $(var camera_description) -name overhead_camera -x 0 -y 0 -z 2 -R 0 -P 1.57 -Y 0"/>
+
+    <node pkg="ros_gz_bridge" exec="parameter_bridge" name="camera_bridge"
+          args="/overhead_camera/image_raw@sensor_msgs/msg/Image@gz.msgs.Image"/>
+</launch>

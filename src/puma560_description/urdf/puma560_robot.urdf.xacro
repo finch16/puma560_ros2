@@ -225,13 +225,13 @@
         <dynamics damping="1.0" friction="0.1"/>
     </joint>
 
-    <ros2_control name="simulation_system" type="system">
+    <ros2_control name="puma560_system" type="system">
         <hardware>
             <xacro:if value="$(arg use_sim_time)">
                 <plugin>gz_ros2_control/GazeboSimSystem</plugin>
             </xacro:if>
             <xacro:unless value="$(arg use_sim_time)">
-                <plugin>puma560_description/RobotHardwareInterface</plugin>
+                <plugin>puma560_hardware/RobotHardwareInterface</plugin>
             </xacro:unless>
         </hardware>
 

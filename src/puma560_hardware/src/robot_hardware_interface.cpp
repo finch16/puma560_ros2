@@ -1,10 +1,10 @@
-#include "puma560_description/robot_hardware_interface.hpp"
+#include "puma560_hardware/robot_hardware_interface.hpp"
 #include "tcp_client/client.hpp"
 #include <algorithm>
 #include <sstream>
 #include <array>
 
-namespace puma560_description
+namespace puma560_hardware
 {
 
 hardware_interface::CallbackReturn RobotHardwareInterface::on_init(
@@ -118,7 +118,7 @@ hardware_interface::return_type RobotHardwareInterface::write(
     return hardware_interface::return_type::OK;
 }
 
-} // namespace puma560_description
+} // namespace puma560_hardware 
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(puma560_description::RobotHardwareInterface, hardware_interface::SystemInterface)
+PLUGINLIB_EXPORT_CLASS(puma560_hardware::RobotHardwareInterface, hardware_interface::SystemInterface)

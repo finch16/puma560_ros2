@@ -1,21 +1,28 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>puma560_description</name>
+    <name>puma560_launch</name>
     <version>0.0.1</version>
-    <description>URDF description for PUMA560 robot</description>
+    <description>Launch files and Gazebo world for PUMA560 robot</description>
     <maintainer email="kamam.maxim@gmail.com">Finch_16</maintainer>
     <license>Apache-2.0</license>
 
     <buildtool_depend>ament_cmake</buildtool_depend>
 
-    <depend>xacro</depend>
-    <depend>ros2_control</depend>
-    <depend>ros_gz_sim</depend>
-    <depend>gz_ros2_control</depend>
+    <depend>robot_state_publisher</depend>
     <depend>controller_manager</depend>
     <depend>joint_trajectory_controller</depend>
     <depend>joint_state_broadcaster</depend>
+    <depend>rviz2</depend>
+    <depend>rqt_joint_trajectory_controller</depend>
+    <depend>ros_gz_sim</depend>
+    <depend>ros_gz_bridge</depend>
+    <depend>gz_ros2_control</depend>
+    <depend>puma560_camera</depend>
+    <depend>cv_bridge</depend>
+    <depend>image_transport</depend>
+    <depend>sensor_msgs</depend>
+    <depend>puma560_description</depend>
 
     <export>
         <build_type>ament_cmake</build_type>
